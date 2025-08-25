@@ -1,7 +1,5 @@
-import { AA2WorkflowHelper } from '@sap/react-native-ausweisapp2-wrapper'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Platform } from 'react-native'
-import { LoadingIndicator } from '../../../components/loading-indicator/loading-indicator'
 import { createRouteConfig } from '../../../navigation/utils/create-route-config'
 import { modalCardStyle } from '../../../theme/utils'
 import { EidErrorAlert } from '../components/eid-error-alert'
@@ -16,11 +14,10 @@ export type EidNFCNotSupportedRouteParams = undefined
 
 export const EidNFCNotSupportedRoute: React.FC = () => {
   const { closeFlow } = useCloseFlow()
-  const [nfcIsDisabled, setNfcIsDisabled] = useState<undefined | boolean>(Platform.OS === 'android' ? undefined : false)
 
   useEffect(() => {
     if (Platform.OS === 'android') {
-      AA2WorkflowHelper.isNfcEnabled().then(result => setNfcIsDisabled(result === false))
+      // AA2WorkflowHelper.isNfcEnabled().then(result => setNfcIsDisabled(result === false))
     }
   }, [])
 
@@ -30,14 +27,10 @@ export const EidNFCNotSupportedRoute: React.FC = () => {
 
   useHandleGestures(onClose)
 
-  if (nfcIsDisabled === undefined) {
-    return <LoadingIndicator loading={true} />
-  }
-
   return (
     <>
       <EidErrorAlert error={null} />
-      {nfcIsDisabled === false ? (
+      {false ? (
         <EidNFCNotSupportedScreen onClose={onClose} />
       ) : (
         <EidNFCDisabledScreen onClose={onClose} />

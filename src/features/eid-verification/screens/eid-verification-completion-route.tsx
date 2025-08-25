@@ -1,11 +1,9 @@
-import { AA2CommandService } from '@sap/react-native-ausweisapp2-wrapper'
 import React, { useCallback } from 'react'
 import { EidScreenProps } from '../../../navigation/eid/types'
 import { createRouteConfig } from '../../../navigation/utils/create-route-config'
 import { commerceApi } from '../../../services/api/commerce-api'
 import { logger } from '../../../services/logger'
 import { modalCardStyle } from '../../../theme/utils'
-import { AA2_TIMEOUTS } from '../eid-command-timeouts'
 import { useHandleGestures } from '../hooks/use-handle-gestures'
 import { EidVerificationCompletionScreen } from './eid-verification-completion-screen'
 
@@ -23,7 +21,7 @@ export const EidVerificationCompletionRoute: React.FC<EidVerificationCompletionR
   const onNext = useCallback(async () => {
     try {
       if (route.params.type === 'eid') {
-        await AA2CommandService.stop({ msTimeout: AA2_TIMEOUTS.STOP })
+        // await AA2CommandService.stop({ msTimeout: AA2_TIMEOUTS.STOP })
       }
 
       // 'Eid' stack will disappear from the rendering tree

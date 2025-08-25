@@ -1,6 +1,5 @@
-import { AccessRight, AccessRights, Certificate } from '@sap/react-native-ausweisapp2-wrapper'
-import React, { useCallback } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import React from 'react'
+import { Pressable, StyleSheet } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Button } from '../../../components/button/button'
 import { ModalScreen } from '../../../components/modal-screen/modal-screen'
@@ -9,59 +8,27 @@ import { ModalScreenHeader } from '../../../components/modal-screen/modal-screen
 import { SvgImage } from '../../../components/svg-image/svg-image'
 import { TranslatedText } from '../../../components/translated-text/translated-text'
 import { useTestIdBuilder } from '../../../services/test-id/test-id'
-import { useTranslation } from '../../../services/translation/translation'
 import { HITSLOP } from '../../../theme/constants'
-import { useTextStyles } from '../../../theme/hooks/use-text-styles'
 import { useTheme } from '../../../theme/hooks/use-theme'
 import { spacing } from '../../../theme/spacing'
 
 export type EidAboutServiceProviderScreenProps = {
-  accessRights: AccessRights
-  certificate: Certificate
   onProviderDetails: () => void
   onNext: () => void
   onClose: () => void
 }
 
 export const EidAboutServiceProviderScreen: React.FC<EidAboutServiceProviderScreenProps> = ({
-  certificate,
-  accessRights,
   onProviderDetails,
   onNext,
   onClose,
 }) => {
   const { buildTestId } = useTestIdBuilder()
   const { colors } = useTheme()
-  const { t } = useTranslation()
-  const [textStyles] = useTextStyles()
 
-  const renderItem = useCallback(
-    (item: AccessRight) => {
-      const type = item.toLowerCase() as Lowercase<AccessRight>
-      const accessRightI18NKey = `eid_aboutServiceProvider_accessRights_${type}` as const
-      const accessRightText = t(accessRightI18NKey as any, '' as any)
-      const accessibilityLabel =
-        item === 'GivenNames' ? t('eid_aboutServiceProvider_accessRights_givennames_label') : undefined
+  // const subjectName = certificate.description.subjectName
 
-      if (!accessRightText) {
-        return null
-      }
-
-      return (
-        <Text
-          key={item}
-          accessible
-          accessibilityLabel={accessibilityLabel}
-          testID={buildTestId(accessRightI18NKey)}
-          style={[textStyles.BodyRegular, { color: colors.labelColor }]}>{`\u2022 ${accessRightText}`}</Text>
-      )
-    },
-    [t, buildTestId, colors.labelColor, textStyles],
-  )
-
-  const subjectName = certificate.description.subjectName
-
-  const effectiveAccessRights = accessRights.chat.effective
+  // const effectiveAccessRights = accessRights.chat.effective
 
   return (
     <ModalScreen whiteBottom testID={buildTestId('eid_aboutServiceProvider')}>
@@ -85,13 +52,6 @@ export const EidAboutServiceProviderScreen: React.FC<EidAboutServiceProviderScre
           style={[styles.providerButton, { backgroundColor: colors.secondaryBackground }]}
           onPress={onProviderDetails}>
           <SvgImage type="government" width={36} height={36} />
-          <Text
-            numberOfLines={3}
-            accessible
-            testID={buildTestId('eid_aboutServiceProvider_details_button_text')}
-            style={[textStyles.BodyBold, styles.providerButtonText, { color: colors.labelColor }]}>
-            {subjectName}
-          </Text>
           <SvgImage type="chevron" width={24} height={24} />
         </Pressable>
         <TranslatedText
@@ -106,7 +66,6 @@ export const EidAboutServiceProviderScreen: React.FC<EidAboutServiceProviderScre
           textStyle="BodyRegular"
           textStyleOverrides={[styles.accessRightsSubtitle, { color: colors.labelColor }]}
         />
-        <View>{effectiveAccessRights.map(renderItem)}</View>
       </ScrollView>
       <ModalScreenFooter>
         <Button
@@ -137,12 +96,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  providerButtonText: {
-    paddingLeft: spacing[5],
-    paddingRight: spacing[4],
-    flex: 1,
-    flexGrow: 1,
   },
   accessRightsSubtitle: {
     paddingTop: spacing[5],

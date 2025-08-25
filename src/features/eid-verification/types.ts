@@ -1,5 +1,3 @@
-import { AccessRights, Certificate, Messages } from '@sap/react-native-ausweisapp2-wrapper'
-
 export type Flow = 'Auth' | 'ChangePin'
 
 export enum EidFlowResponse {
@@ -25,7 +23,6 @@ export type EidRetry =
 
 export type EidMessageError = {
   response: EidFlowResponse.EidMessageError
-  msg: Messages
 }
 
 export type EidAuthSuccess = {
@@ -42,8 +39,6 @@ export type EidNFCNotSupported = {
 
 export type EidAuthFlowStarted = {
   response: EidFlowResponse.EidAuthFlowStarted
-  accessRights: AccessRights
-  certificate: Certificate
 }
 
 export type EidSDKInitSuccess = {

@@ -4,7 +4,6 @@ import React, { useCallback } from 'react'
 import { RootStackParams } from '../../../navigation/types'
 import { createRouteConfig } from '../../../navigation/utils/create-route-config'
 import { modalCardStyle } from '../../../theme/utils'
-import { EidAboutVerificationRouteName } from '../../eid-verification/screens/eid-about-verification-route'
 import { RegistrationFinishedScreen } from './registration-finished-screen'
 
 export const RegistrationFinishedRouteName = 'RegistrationFinished'
@@ -16,7 +15,6 @@ export const RegistrationFinishedRoute: React.FC = () => {
 
   const onNext = useCallback(() => {
     navigation.navigate('Tabs')
-    navigation.navigate('Eid', { screen: EidAboutVerificationRouteName })
   }, [navigation])
 
   const onClose = useCallback(() => {

@@ -1,6 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
-import { AA2CommandService } from '@sap/react-native-ausweisapp2-wrapper'
 import React, { useCallback, useReducer, useState } from 'react'
 import { Keyboard, StyleSheet, Switch, TextInput, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -26,8 +25,6 @@ import {
 } from '../../../features/in-app-review/redux/in-app-review-selectors'
 import { useReleaseNotesConfig } from '../../../features/release-notes/hooks/use-release-notes-config'
 import { RootStackParams } from '../../../navigation/types'
-import { getIsUserLoggedIn } from '../../../services/auth/store/auth-selectors'
-import { logger } from '../../../services/logger'
 import { AppDispatch } from '../../../services/redux/configure-store'
 import { getShowOnboardingOnStartup } from '../../../services/redux/selectors/onboarding-selectors'
 import { setShowOnboardingOnStartup } from '../../../services/redux/slices/onboarding'
@@ -96,10 +93,8 @@ export const DeveloperMenuScreen: React.FC<DeveloperMenuScreenProps> = ({
   const { t } = useTranslation()
   const dispatch = useDispatch<AppDispatch>()
   const { buildTestId } = useTestIdBuilder()
-  const navigation = useNavigation<StackNavigationProp<RootStackParams, 'Tabs'>>()
   const rootNavigation = useNavigation<StackNavigationProp<RootStackParams>>()
 
-  const isLoggedIn = useSelector(getIsUserLoggedIn)
   const lastShownTimestamp = useSelector(getLastShownTimestamp)
   const showInAppReview = useSelector(getShowInAppReview)
 
@@ -117,18 +112,6 @@ export const DeveloperMenuScreen: React.FC<DeveloperMenuScreenProps> = ({
       },
     })
   }, [productCode, rootNavigation])
-
-  const cancelEidFlow = useCallback(async () => {
-    try {
-      await AA2CommandService.cancel()
-    } catch (e) {
-      logger.log(`Could not cancel AA2 Flow: ${e}`)
-    }
-  }, [])
-
-  const startEidFlow = useCallback(() => {
-    navigation.navigate('Eid', { screen: 'EidAboutVerification' })
-  }, [navigation])
 
   const resetInAppReviewTimestamp = useCallback(() => {
     dispatch(setLastShownTimestamp(undefined))
@@ -330,32 +313,6 @@ export const DeveloperMenuScreen: React.FC<DeveloperMenuScreenProps> = ({
             textStyleOverrides={[styles.warningMessage, { color: colors.labelColor }]}
           />
         </View>
-        {isLoggedIn && tapCounter > ADDITIONAL_OPTIONS_TAP_COUNTER ? (
-          <View
-            style={[
-              styles.productCodeListItem,
-              { borderBottomColor: colors.listItemBorder, backgroundColor: colors.secondaryBackground },
-            ]}>
-            <Button
-              onPress={startEidFlow}
-              testID={buildTestId('developerMenu_startEidFlow_button')}
-              i18nKey="developerMenu_startEidFlow_button"
-            />
-          </View>
-        ) : null}
-        {tapCounter > ADDITIONAL_OPTIONS_TAP_COUNTER ? (
-          <View
-            style={[
-              styles.productCodeListItem,
-              { borderBottomColor: colors.listItemBorder, backgroundColor: colors.secondaryBackground },
-            ]}>
-            <Button
-              onPress={cancelEidFlow}
-              testID={buildTestId('developerMenu_cancelEidFlow_button')}
-              i18nKey="developerMenu_cancelEidFlow_button"
-            />
-          </View>
-        ) : null}
       </ScreenContent>
     </ModalScreen>
   )

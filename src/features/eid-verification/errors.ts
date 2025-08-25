@@ -1,4 +1,3 @@
-import { AA2Messages, Auth, ChangePin, FailureCodes } from '@sap/react-native-ausweisapp2-wrapper'
 import { ErrorWithCode } from '../../services/errors/errors'
 
 export enum AA2ErrorCode {
@@ -179,63 +178,6 @@ export class AA2CardAuthenticityValidationFailed extends AA2Error {
   }
 }
 
-export const createAA2ErrorFromMessage = (message: AA2Messages): ErrorWithCode => {
-  switch (message) {
-    case AA2Messages.BadState:
-      return new AA2BadState()
-    case AA2Messages.InternalError:
-      return new AA2InternalError()
-    case AA2Messages.Invalid:
-      return new AA2InvalidMessage()
-    case AA2Messages.UnknownCommand:
-      return new AA2UnknownCommand()
-    default:
-      return new AA2Error()
-  }
-}
-
-/**
- * Extract a detailed code out of the `Auth` AusweisApp2 SDK Message
- */
-export const extractDetailCode = (authMsg: Auth): string | undefined => {
-  const reason = authMsg.result?.reason
-  if (reason !== undefined) {
-    return reason
-  }
-
-  const detailCodeSplit = authMsg.result?.minor?.split('#')
-  const detailCode = detailCodeSplit && detailCodeSplit[detailCodeSplit?.length]
-  if (detailCode !== undefined) {
-    return detailCode
-  }
-
-  return authMsg.error
-}
-
-/**
- * Check if `Auth` AusweisApp2 SDK Message is a user cancellation error
- */
-export const isErrorUserCancellation = (authMsg: Auth): boolean => {
-  return (
-    authMsg.result?.minor?.endsWith('#cancellationByUser') === true &&
-    authMsg.result.reason === FailureCodes.User_Cancelled
-  )
-}
-
-/**
- * Extract error from AA2 Auth message url property, by checking for a errorCode query parameter.
- * @param authMsg The Auth message to be checked
- * @returns AA2Error if any error was found, else undefined
- */
-export const extractAuthResultUrlQueryError = (authMsg: Auth): AA2Error | undefined => {
-  if (authMsg.url !== undefined) {
-    const errorCode: string | undefined = authMsg.url.match(/^.*errorCode=([^&]+).*$/)?.[1]
-    if (errorCode !== undefined) {
-      return errorCodeToAA2Error(errorCode)
-    }
-  }
-}
-
 export const errorCodeToAA2Error = (errorCode: string): AA2Error => {
   switch (errorCode) {
     case 'BELOW_MIN_YEAR_OF_BIRTH':
@@ -248,82 +190,5 @@ export const errorCodeToAA2Error = (errorCode: string): AA2Error => {
       return new AA2PseudonymAlreadyInUse()
     default:
       return new AA2AuthError(errorCode)
-  }
-}
-
-/**
- * Convert FailureCode that is found in the reason property of Auth or Change Pin Message to ErrorWithCode
- * @param reason reason property of Auth or Change Pin Message
- * @returns AA2Error if matching else undefined
- */
-export const reasonToError = (reason?: FailureCodes): AA2Error | undefined => {
-  switch (reason) {
-    case FailureCodes.Card_Removed:
-    case FailureCodes.Did_Authenticate_Eac2_Card_Command_Failed:
-      return new AA2CardRemoved()
-    case FailureCodes.Connect_Card_Eid_Inactive:
-      return new AA2CardDeactivated()
-    case FailureCodes.Get_TcToken_Invalid_Data:
-      return new AA2InitError()
-    case FailureCodes.Start_Paos_Response_Error:
-      return new AA2CardValidationFailed()
-    case FailureCodes.Process_Certificates_From_Eac2_Cvc_Chain_Missing:
-      return new AA2CardAuthenticityValidationFailed()
-  }
-}
-
-export const handleAuthError = (
-  message: Auth,
-  shouldCloseOnCancellation: boolean,
-  handleClose: () => void,
-  handlePUKInoperative: () => void,
-) => {
-  const majorRes = message.result?.major
-  if (majorRes?.endsWith('#error') === true) {
-    if (isErrorUserCancellation(message)) {
-      if (shouldCloseOnCancellation) {
-        handleClose()
-      }
-      return
-    }
-
-    const reasonError = reasonToError(message.result?.reason)
-
-    if (reasonError !== undefined) {
-      throw reasonError
-    }
-
-    if (message.result?.reason === FailureCodes.Establish_Pace_Channel_Puk_Inoperative) {
-      handlePUKInoperative()
-      return
-    }
-
-    const detailCode = extractDetailCode(message)
-    throw new AA2AuthErrorResultError(detailCode, message.result?.message ?? message.result?.description)
-  } else if (message.error !== undefined) {
-    throw new AA2AuthError(message.error)
-  }
-}
-
-export const handleChangePinError = (
-  message: ChangePin,
-  shouldCloseOnCancellation: boolean,
-  handleClose: () => void,
-) => {
-  if (message.success === false) {
-    if (message.reason === FailureCodes.User_Cancelled) {
-      if (shouldCloseOnCancellation) {
-        handleClose()
-      }
-      return
-    }
-
-    const reasonError = reasonToError(message.reason)
-
-    if (reasonError !== undefined) {
-      throw reasonError
-    }
-
-    throw new AA2AuthErrorResultError(message.reason)
   }
 }
