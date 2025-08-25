@@ -12,7 +12,7 @@ export const AccountDeletionSuccessfulRoute: React.FC = () => {
   const tabNavigation = useTabsNavigation()
 
   const onClose = useCallback(() => {
-    tabNavigation.navigateDeprecated('Settings', {
+    tabNavigation.navigate('Settings', {
       screen: 'ViewProfile',
     })
   }, [tabNavigation])

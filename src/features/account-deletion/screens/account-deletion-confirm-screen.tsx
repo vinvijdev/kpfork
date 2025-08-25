@@ -30,7 +30,7 @@ export type AccountDeletionConfirmScreenProps = {
 export const AccountDeletionConfirmScreen: React.FC<AccountDeletionConfirmScreenProps> = ({ onNext, onClose }) => {
   const { buildTestId, addTestIdModifier } = useTestIdBuilder()
   const { colors } = useTheme()
-  const { deleteAccount, loading } = useDeleteAccount()
+  const { loading } = useDeleteAccount()
 
   const form = useForm<{ password: string }>({
     shouldFocusError: false,
@@ -43,9 +43,9 @@ export const AccountDeletionConfirmScreen: React.FC<AccountDeletionConfirmScreen
 
   useFocusErrors(form)
 
-  const handlePressDelete = form.handleSubmit(async data => {
+  const handlePressDelete = form.handleSubmit(async () => {
     try {
-      await deleteAccount(data.password)
+      // await deleteAccount(data.password)
       onNext()
     } catch (error: unknown) {
       if (error instanceof ErrorWithCode) {
