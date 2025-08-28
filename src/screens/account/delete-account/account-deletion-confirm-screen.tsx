@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import { useDispatch } from 'react-redux'
 import { z } from 'zod'
 import { Button } from '../../../components/button/button'
 import { FormFieldWithControl } from '../../../components/form-fields/form-field-with-control'
@@ -18,9 +17,7 @@ import { useFocusErrors } from '../../../features/form-validation/hooks/use-focu
 import { ErrorAlertManager } from '../../../services/errors/error-alert-provider'
 import { ErrorWithCode, UnknownError } from '../../../services/errors/errors'
 import { logger } from '../../../services/logger'
-import { AppDispatch } from '../../../services/redux/configure-store'
 import { useTestIdBuilder } from '../../../services/test-id/test-id'
-import { deleteAccount } from '../../../services/user/redux/thunks/delete-account'
 import { useTheme } from '../../../theme/hooks/use-theme'
 import { spacing } from '../../../theme/spacing'
 
@@ -33,7 +30,6 @@ export const AccountDeletionConfirmScreen: React.FC<AccountDeletionConfirmScreen
   const { buildTestId, addTestIdModifier } = useTestIdBuilder()
   const { colors } = useTheme()
   const [loading, setLoading] = useState(false)
-  const dispatch = useDispatch<AppDispatch>()
 
   const form = useForm<{ password: string }>({
     shouldFocusError: false,
@@ -46,10 +42,10 @@ export const AccountDeletionConfirmScreen: React.FC<AccountDeletionConfirmScreen
 
   useFocusErrors(form)
 
-  const handlePressDelete = form.handleSubmit(async data => {
+  const handlePressDelete = form.handleSubmit(async () => {
     setLoading(true)
     try {
-      await dispatch(deleteAccount({ password: data.password })).unwrap()
+      // await dispatch(deleteAccount({ password: data.password })).unwrap()
       onNext()
     } catch (error: unknown) {
       if (error instanceof ErrorWithCode) {
